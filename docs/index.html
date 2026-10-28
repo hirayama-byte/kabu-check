@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>急落株チェック</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="bg"></div>
+<header class="top">
+  <div class="brand"><span class="logo">▼</span><div><b>急落株チェック</b><small>PRIME MARKET · PLUNGE MONITOR</small></div></div>
+  <nav class="tabs" id="tabs">
+    <button data-tab="today" class="on">今日の急落<span class="n" id="nToday"></span></button>
+    <button data-tab="history">記録<span class="n" id="nHistory"></span></button>
+    <button data-tab="patterns">パターン</button>
+  </nav>
+  <div class="meta" id="meta"></div>
+</header>
+
+<main>
+  <!-- 今日 -->
+  <section id="today">
+    <div class="kpis" id="kpis"></div>
+    <div class="toolbar">
+      <div class="seg" id="sortSeg"><button data-k="score" class="on">注目順</button><button data-k="chg">下落率</button><button data-k="volRatio">出来高</button><button data-k="turnover">売買代金</button></div>
+      <select id="catFilter"><option value="">ニュース種別：すべて</option></select>
+      <select id="tagFilter"><option value="">タグ：すべて</option></select>
+      <span class="sp"></span>
+      <span class="hint" id="todayHint"></span>
+    </div>
+    <div class="cards" id="cards"></div>
+  </section>
+
+  <!-- 記録 -->
+  <section id="history" class="hide">
+    <div class="toolbar">
+      <select id="hResult"><option value="">結果：すべて</option><option>反発</option><option>横ばい</option><option>続落</option><option value="tracking">追跡中</option></select>
+      <select id="hCat"><option value="">ニュース種別：すべて</option></select>
+      <select id="hVerdict"><option value="">自分の判断：すべて</option><option value="go">狙う</option><option value="watch">様子見</option><option value="skip">見送り</option></select>
+      <input type="search" id="hQ" placeholder="銘柄名・コードで検索">
+      <span class="sp"></span>
+      <button class="btn" id="exportNotes">判断メモを書き出す</button>
+    </div>
+    <div class="tbl"><table id="hTable">
+      <thead><tr><th>急落日</th><th>銘柄</th><th>種別</th><th class="num">下落</th><th class="num">出来高</th><th class="num">飛びつき</th><th>その後5日</th><th class="num">翌日</th><th class="num">最大反発</th><th class="num">5日後</th><th>結果</th><th>判断</th></tr></thead>
+      <tbody id="hRows"></tbody>
+    </table></div>
+  </section>
+
+  <!-- パターン -->
+  <section id="patterns" class="hide">
+    <div class="kpis" id="pKpis"></div>
+    <div class="pgrid" id="pGrid"></div>
+    <p class="note">翌日プラス率＝急落日の翌営業日の終値が急落日の終値より高かった割合。5日後プラス率＝5営業日後の終値ベース。最大反発＝5営業日内の高値の、急落日終値からの上昇率の平均。結果：5日後 +3%以上＝反発／−3%以下＝続落／その間＝横ばい。</p>
+  </section>
+</main>
+
+<footer class="foot">
+  <p>データ：JPX 上場銘柄一覧（プライム・内国株式）／株価：Yahoo Finance（日足・大引け後に更新）／ニュース：Google ニュース検索（直近7日）。みんかぶ・株探は各銘柄のリンクから確認してください。</p>
+  <p>この画面は公開データを整理した個人用のメモです。投資助言ではありません。売買の判断と結果はご自身の責任で。</p>
+</footer>
+
+<!-- 詳細 -->
+<div class="modal" id="modal"><div class="panel">
+  <button class="close" id="mClose" aria-label="閉じる">×</button>
+  <div id="mBody"></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+<script src="app.js"></script>
+</body>
+</html>

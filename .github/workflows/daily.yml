@@ -1,0 +1,42 @@
+name: daily
+# 平日の大引け後（16:10 JST = 07:10 UTC）に株価を更新して急落をピック。手動実行も可
+on:
+  schedule:
+    - cron: '10 7 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      threshold:
+        description: '急落のしきい値（%・既定 -5）'
+        required: false
+        default: '-5'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci --omit=dev
+      - name: 銘柄一覧（月初だけ更新）
+        run: |
+          if [ "$(date +%d)" = "01" ] || [ ! -f docs/data/universe.json ]; then node scripts/universe.js; fi
+      - name: 株価・急落・ニュース・記録
+        run: node scripts/fetch.js --threshold=${{ github.event.inputs.threshold || '-5' }}
+      - name: テスト
+        run: node test/run.js
+      - name: コミット
+        run: |
+          git config user.name "kabu-check bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A docs/data data/cache
+          git diff --cached --quiet && echo "変更なし" || git commit -m "data: $(node -e "console.log(require('./docs/data/meta.json').date)")" && git push

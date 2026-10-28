@@ -1,0 +1,15 @@
+{
+  "name": "kabu-check",
+  "version": "0.1.0",
+  "private": true,
+  "description": "急落株チェック — プライム市場の急落銘柄をピックアップし、値動き・ニュース・その後5日の推移を蓄積する個人用ダッシュボード",
+  "scripts": {
+    "universe": "node scripts/universe.js",
+    "fetch": "node scripts/fetch.js",
+    "test": "node test/run.js",
+    "serve": "node test/serve.js"
+  },
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  }
+}
