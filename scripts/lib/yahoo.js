@@ -8,7 +8,7 @@ function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
 // 1銘柄の日足 { code, dates: ['yyyy-mm-dd'], o, h, l, c, v, meta } を返す。取れなければ null
 async function fetchChart(code, range, retry) {
   retry = retry == null ? 3 : retry;
-  const url = 'https://query2.finance.yahoo.com/v8/finance/chart/' + code + '.T?range=' + (range || '5d') + '&interval=1d';
+  const url = 'https://query2.finance.yahoo.com/v8/finance/chart/' + code + '.T?range=' + (range || '5d') + '&interval=1d&events=splits';
   for (let t = 0; t <= retry; t++) {
     try {
       const r = await fetch(url, { headers: { 'User-Agent': UA, Accept: 'application/json' } });
@@ -29,7 +29,7 @@ async function fetchChart(code, range, retry) {
 // JST の日付にして、終値が無い日（休場・欠損）は捨てる
 function parseChart(code, res) {
   const q = res.indicators.quote[0];
-  const out = { code: String(code), dates: [], o: [], h: [], l: [], c: [], v: [], meta: pickMeta(res.meta) };
+  const out = { code: String(code), dates: [], o: [], h: [], l: [], c: [], v: [], meta: pickMeta(res.meta), splits: parseSplits(res.events) };
   res.timestamp.forEach(function (ts, i) {
     if (q.close[i] == null) return;
     const d = new Date((ts + 9 * 3600) * 1000).toISOString().slice(0, 10);
@@ -38,6 +38,21 @@ function parseChart(code, res) {
     out.o.push(round(q.open[i])); out.h.push(round(q.high[i])); out.l.push(round(q.low[i])); out.c.push(round(q.close[i])); out.v.push(q.volume[i] || 0);
   });
   return out;
+}
+// 分割 { 'yyyy-mm-dd': ratio }（ratio = 新株数/旧株数。例 1:2 の分割は 2）
+function parseSplits(events) {
+  const out = {};
+  if (events && events.splits) Object.keys(events.splits).forEach(function (k) { const s = events.splits[k]; const r = s.numerator && s.denominator ? s.numerator / s.denominator : null; if (r && r !== 1) out[new Date((s.date + 9 * 3600) * 1000).toISOString().slice(0, 10)] = r; });
+  return out;
+}
+// 分割日より前の値を分割後の水準にそろえる（価格 ÷ ratio・出来高 × ratio）
+function applySplits(h, splits) {
+  if (!h || !splits) return h;
+  Object.keys(splits).forEach(function (d) {
+    const r = splits[d];
+    h.dates.forEach(function (dd, i) { if (dd < d) { h.o[i] = round(h.o[i] / r); h.h[i] = round(h.h[i] / r); h.l[i] = round(h.l[i] / r); h.c[i] = round(h.c[i] / r); h.v[i] = Math.round(h.v[i] * r); } });
+  });
+  return h;
 }
 function round(v) { return v == null ? null : Math.round(v * 100) / 100; }
 function pickMeta(m) {
@@ -67,4 +82,4 @@ async function fetchAll(codes, range, opts) {
   return out;
 }
 
-module.exports = { fetchChart, fetchAll, parseChart };
+module.exports = { fetchChart, fetchAll, parseChart, parseSplits, applySplits };

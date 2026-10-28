@@ -15,6 +15,7 @@ const DEFAULT_CFG = {
 // 日足の統合（新しい方を優先・日付順・keepDays 日に丸める）
 function mergeChart(oldH, newH, keepDays) {
   if (!newH) return oldH || null;
+  if (oldH && newH.splits && Object.keys(newH.splits).length) oldH = require('./yahoo').applySplits(JSON.parse(JSON.stringify(oldH)), newH.splits); // 新しい応答に分割があれば古い値をそろえる
   if (!oldH) return trim(newH, keepDays);
   const by = {};
   const put = function (h) { h.dates.forEach(function (d, i) { by[d] = [h.o[i], h.h[i], h.l[i], h.c[i], h.v[i]]; }); };

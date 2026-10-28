@@ -174,4 +174,14 @@ t('統計: 区分ごとの翌日プラス率・5日後プラス率・平均最�
   assert.strictEqual(s.cat[0].key, '決算');
 });
 
+
+t('分割の補正: 分割日より前の価格を割り、出来高を掛ける／「上方修正なく」は決算扱い', function () {
+  const h = { dates: ['2026-10-01', '2026-10-02', '2026-10-03'], o: [2000, 2010, 1000], h: [2020, 2030, 1010], l: [1990, 2000, 990], c: [2010, 2020, 1005], v: [100, 100, 200] };
+  Y.applySplits(h, { '2026-10-03': 2 });
+  assert.deepStrictEqual(h.c, [1005, 1010, 1005]); assert.deepStrictEqual(h.v, [200, 200, 200]);
+  assert.deepStrictEqual(Y.parseSplits({ splits: { '1761782400': { date: 1761782400, numerator: 3, denominator: 1 } } }), { '2025-10-30': 3 });
+  assert.deepStrictEqual(C.classify('通期予想の上方修正なく失望売り'), ['決算']);
+  assert.deepStrictEqual(C.classify('通期予想を上方修正'), ['上方修正', '決算']);
+});
+
 console.log(pass + ' 件 OK' + (process.exitCode ? '（失敗あり）' : ''));

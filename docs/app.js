@@ -165,7 +165,7 @@
     });
     // 急落日
     var i0 = h.dates.indexOf(date);
-    if (i0 >= 0) { g.strokeStyle = '#ffb648'; g.setLineDash([4, 3]); g.beginPath(); g.moveTo(x(i0), padT); g.lineTo(x(i0), H - padB); g.stroke(); g.setLineDash([]); g.fillStyle = '#ffb648'; g.font = 'bold 10px JetBrains Mono, monospace'; g.textAlign = 'center'; g.fillText('急落 ' + md(date), x(i0), padT - 2); }
+    if (i0 >= 0) { g.strokeStyle = '#ffb648'; g.setLineDash([4, 3]); g.beginPath(); g.moveTo(x(i0), padT); g.lineTo(x(i0), H - padB); g.stroke(); g.setLineDash([]); g.fillStyle = '#ffb648'; g.font = 'bold 10px JetBrains Mono, monospace'; g.textAlign = 'center'; g.fillText('急落 ' + md(date), Math.min(Math.max(x(i0), padL + 30), W - padR - 30), padT - 2); }
   }
 
   // ---------- 詳細 ----------

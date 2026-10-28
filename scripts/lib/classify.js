@@ -17,6 +17,7 @@ function classify(title) {
   const t = String(title || '');
   const hits = [];
   CATS.forEach(function (c) { if (c[1].some(function (k) { return t.indexOf(k) >= 0; })) hits.push(c[0]); });
+  if (/上方修正(なく|なし|せず|見送|は無|がな)/.test(t)) { const i = hits.indexOf('上方修正'); if (i >= 0) hits.splice(i, 1); if (hits.indexOf('決算') < 0) hits.push('決算'); }
   return hits;
 }
 // ニュース一覧から銘柄の主な種別を1つ決める（優先順位: 下方修正 > 不祥事 > 増資 > レーティング > 決算 > …）
